@@ -2,6 +2,7 @@ package com.zerobase.convpay.service;
 
 import com.zerobase.convpay.DTO.*;
 import com.zerobase.convpay.type.*;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -15,14 +16,14 @@ public class ConveniencePayService {
     private final DiscountInterface discountInterface;
 
     public ConveniencePayService(Set<PaymentInterface> paymentInterfaceSet,
-                                 DiscountInterface discountByConvenience) {
+                                 DiscountInterface discountInterface) {
         paymentInterfaceSet.forEach(
                 paymentInterface -> paymentInterfaceMap.put(
                         paymentInterface.getPayMethodType(),
                         paymentInterface)
         );
 
-        this.discountInterface = discountByConvenience;
+        this.discountInterface = discountInterface;
     }
 
     public PayResponse pay(PayRequest payRequest) {
@@ -43,9 +44,13 @@ public class ConveniencePayService {
 
     public PayCancelResponse payCancel(PayCancelRequest payCancelRequest) {
 
-        PaymentInterface paymentInterface = paymentInterfaceMap.get(payCancelRequest.getPayMethodType());
+        PaymentInterface paymentInterface =
+                paymentInterfaceMap.get(payCancelRequest.getPayMethodType());
 
-        CancelPaymentResult cancelPaymentResult = paymentInterface.cancelPayment(payCancelRequest.getPayCancelAmount());
+
+        CancelPaymentResult cancelPaymentResult =
+                paymentInterface.cancelPayment(payCancelRequest.getPayCancelAmount());
+
 
         if (cancelPaymentResult == CancelPaymentResult.CANCEL_PAYMENT_FAIL) {
             return new PayCancelResponse(PayCancelResult.PAY_CANCEL_FAIL, 0);
